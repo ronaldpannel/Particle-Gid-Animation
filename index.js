@@ -9,11 +9,11 @@ canvas.height = 600;
 class Particle {
   constructor(effect) {
     this.effect = effect;
-    this.x = Math.floor(Math.random() * this.effect.width);
-    this.y = Math.floor(Math.random() * this.effect.height);
+    this.rad = Math.floor(Math.random() * 10 + 10);
+    this.x = randomIntFromRange(this.rad, this.effect.width - this.rad);
+    this.y = randomIntFromRange(0, this.effect.height);
     this.velX = Math.random() * 2 - 1;
     this.velY = Math.random() * 0.25 + 0.25;
-    this.rad = Math.floor(Math.random() * 10 + 10);
     this.angle = Math.random() + 3 - 3;
   }
   draw(ctx) {
@@ -72,7 +72,7 @@ class Effect {
 
     const btn = document.getElementById("debug");
     btn.addEventListener("click", () => {
-       this.debug = !this.debug;
+      this.debug = !this.debug;
     });
   }
   init() {
