@@ -15,6 +15,7 @@ class Particle {
     this.velX = Math.random() * 2 - 1;
     this.velY = Math.random() * 0.25 + 0.25;
     this.angle = Math.random() + 3 - 3;
+    this.hue;
   }
   draw(ctx) {
     const col = Math.floor(this.x / this.effect.cellSize);
@@ -25,14 +26,14 @@ class Particle {
       row >= 0 &&
       row < this.effect.rows
     ) {
-      const hue = this.effect.grid[col][row];
-      ctx.fillStyle = `hsl(${hue}, 100%, 50%)`; // Set the color based on the grid's hue value
+      this.hue = this.effect.grid[col][row];
+      ctx.fillStyle = `hsl(${this.hue}, 100%, 50%)`; // Set the color based on the grid's hue value
+      ctx.strokeStyle = `hsl(${this.hue}, 100%, 50%)`;
     } else {
       ctx.fillStyle = "black"; // Default color if out of bounds
     }
 
     ctx.beginPath();
-    ctx.fillStyle = this.effect.color;
     ctx.arc(this.x, this.y, this.rad, 0, Math.PI * 2);
     ctx.fill();
   }
@@ -60,12 +61,10 @@ class Effect {
     this.cols = 10;
     this.rows = 10;
     this.cellSize = this.width / this.rows;
-    this.color;
     this.debug = true;
     this.init();
     window.addEventListener("keypress", (e) => {
       if (e.key.toLowerCase() == "d") {
-        console.log(e.key);
         this.debug = !this.debug;
       }
     });
@@ -93,6 +92,24 @@ class Effect {
       }
     }
   }
+  connectParticles(ctx) {
+    for (let i = 0; i < this.particleArray.length; i++) {
+      for (let j = i; j < this.particleArray.length; j++) {
+        let dx = this.particleArray[i].x - this.particleArray[j].x;
+        let dy = this.particleArray[i].y - this.particleArray[j].y;
+        let distance = Math.hypot(dx, dy);
+        if (distance < 80) {
+          let lw = 1 - distance/ i + 3
+          ctx.lineWidth = lw
+          ctx.beginPath();
+          ctx.moveTo(this.particleArray[i].x, this.particleArray[i].y);
+          ctx.lineTo(this.particleArray[j].x, this.particleArray[j].y);
+          ctx.stroke();
+          console.log(lw)
+        }
+      }
+    }
+  }
   drawGrid(ctx) {
     if (!this.debug) {
       ctx.strokeStyle = " white";
@@ -113,11 +130,13 @@ class Effect {
     }
   }
   render(ctx) {
+    this.connectParticles(ctx);
+     this.drawGrid(ctx);
     this.particleArray.forEach((particle) => {
       particle.draw(ctx);
       particle.update();
     });
-    this.drawGrid(ctx);
+   
   }
 }
 
